@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -45,6 +46,11 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password)
         ]);
+
+        $defaultCategories = Category::whereNull('user_id')->get();
+        foreach ($defaultCategories as $category) {
+            $user->categories()->create($category->toArray());
+        }
 
         return $user->createToken($request->device_name)->plainTextToken;
 
